@@ -6,23 +6,40 @@ import plotly.express as px
 import tensorflow as tf
 from PIL import Image
 import json
+import os
+import urllib.request
 
 # Setup halaman utama
 st.set_page_config(page_title="NutriCheck AI", page_icon="🥗", layout="wide")
 
-# Load Semua Aset AI Lokal (Tanpa Internet / API luar)
+# Load Semua Aset AI Lokal (Dengan Fitur Unduh Otomatis dari Google Drive)
 @st.cache_resource
 def load_lokal_ai():
+    # 1. Memuat Model Diabetes Medis
     model_medis = joblib.load('diabetes_rf_model.pkl')
-    model_vision = tf.keras.models.load_model('model_makanan_lokal.h5')
+    
+    # 2. Logika Unduh Otomatis untuk File Model Vision .h5 jika tidak ada di GitHub
+    model_path = 'model_makanan_lokal.h5'
+    if not os.path.exists(model_path):
+        with st.spinner("Mengunduh modul arsitektur otak AI Vision dari penyimpanan aman Google Drive (Hanya dilakukan sekali saat startup)..."):
+            id_drive = "1jtd0LiTNIRa2y55jdEQqa36iOp0x6QFz" 
+            url_download = f"https://docs.google.com/uc?export=download&confirm=no_auth&id={id_drive}"
+            # Melakukan pengunduhan otomatis ke container Streamlit Cloud
+            urllib.request.urlretrieve(url_download, model_path)
+            
+    # Memuat Model Vision CNN setelah diunduh
+    model_vision = tf.keras.models.load_model(model_path)
+    
+    # 3. Memuat Berkas Label Kelas Menu
     with open('label_makanan.json', 'r') as f:
         labels = json.load(f)
+        
     return model_medis, model_vision, labels
 
 try:
     ai_diabetes, ai_vision, daftar_label = load_lokal_ai()
 except Exception as e:
-    st.error(f"Gagal memuat AI. Pastikan kedua Notebook sudah dijalankan! Eror: {e}")
+    st.error(f"Gagal memuat AI. Pastikan file model diabetes dan label sudah di-push ke GitHub serta ID Drive file .h5 Anda valid! Eror: {e}")
     st.stop()
 
 # ==============================================================================
@@ -50,7 +67,7 @@ database_gizi = {
 }
 
 st.title("🥗 NutriCheck AI — Full Local Embedded Intelligent System")
-st.write("Sistem terintegrasi Computer Vision & Predictive Analytics yang berjalan 100% lokal di komputer Anda.")
+st.write("Sistem terintegrasi Computer Vision & Predictive Analytics yang berjalan secara andal langsung di web cloud.")
 st.markdown("---")
 
 # --- SIDEBAR PROFIL USER ---
