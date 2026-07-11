@@ -111,12 +111,25 @@ with tab1:
 
     with col_out:
         if img_ready:
-            # PROSES PREDIKSI GAMBAR OLEH CNN LOKAL KAMU
-            img_resized = img_ready.resize((128, 128))
-            img_array = np.array(img_resized) / 255.0  # Normalisasi warna
-            img_array = np.expand_dims(img_array, axis=0)  # Bentuk tensor batch
+            # ==================================================================
+            # PROSES PREDIKSI GAMBAR OLEH CNN (PERBAIKAN DIMENSI & TIPE DATA)
+            # ==================================================================
+            # 1. Pastikan gambar diubah ke mode RGB (menghindari eror jika gambar punya channel Alpha/RGBA)
+            img_rgb = img_ready.convert('RGB')
             
+            # 2. Mengubah ukuran gambar sesuai target training (128x128)
+            img_resized = img_rgb.resize((128, 128))
+            
+            # 3. Mengubah gambar menjadi numpy array berkategori float32
+            img_array = np.array(img_resized, dtype=np.float32) / 255.0 
+            
+            # 4. Menambahkan dimensi batch di depan, sehingga ukurannya pas menjadi (1, 128, 128, 3)
+            img_array = np.expand_dims(img_array, axis=0) 
+            
+            # 5. Melakukan prediksi lewat model
             preds = ai_vision.predict(img_array)[0]
+            # ==================================================================
+            
             indeks_tertinggi = np.argmax(preds)
             folder_terdeteksi = daftar_label[indeks_tertinggi]
             skor_pasti = preds[indeks_tertinggi] * 100
