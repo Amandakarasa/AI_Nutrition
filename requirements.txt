@@ -6,3 +6,4 @@ joblib
 plotly
 pillow
 tensorflow-cpu==2.15.0
+gdown
