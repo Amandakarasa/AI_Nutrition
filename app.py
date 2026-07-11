@@ -9,6 +9,12 @@ import json
 import os
 import urllib.request
 
+try:
+    # Memaksa TensorFlow menjalankan kalkulasi matriks secara instan (Eager Execution)
+    tf.config.run_functions_eagerly(True)
+except Exception:
+    pass
+    
 # Setup halaman utama
 st.set_page_config(page_title="NutriCheck AI", page_icon="🥗", layout="wide")
 
