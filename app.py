@@ -24,7 +24,6 @@ def load_lokal_ai():
         with st.spinner("Mengunduh modul arsitektur otak AI Vision dari penyimpanan aman Google Drive (Hanya dilakukan sekali saat startup)..."):
             id_drive = "1jtd0LiTNIRa2y55jdEQqa36iOp0x6QFz" 
             url_download = f"https://docs.google.com/uc?export=download&confirm=no_auth&id={id_drive}"
-            # Melakukan pengunduhan otomatis ke container Streamlit Cloud
             urllib.request.urlretrieve(url_download, model_path)
             
     # Memuat Model Vision CNN setelah diunduh
